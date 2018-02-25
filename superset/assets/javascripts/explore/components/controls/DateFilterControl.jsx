@@ -8,12 +8,13 @@ import Select from 'react-select';
 import Datetime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import moment from 'moment';
+require('moment/locale/it');
 
 import ControlHeader from '../ControlHeader';
 import PopoverSection from '../../../components/PopoverSection';
 
-const RELATIVE_TIME_OPTIONS = ['ago', 'from now'];
-const TIME_GRAIN_OPTIONS = ['seconds', 'minutes', 'days', 'weeks', 'months', 'years'];
+const RELATIVE_TIME_OPTIONS = ['fà', 'da adesso'];
+const TIME_GRAIN_OPTIONS = ['secondi', 'minuti', 'giorni', 'settimane', 'mesi', 'anni'];
 
 const propTypes = {
   animation: PropTypes.bool,
@@ -37,10 +38,10 @@ export default class DateFilterControl extends React.Component {
     const value = props.value || '';
     this.state = {
       num: '7',
-      grain: 'days',
-      rel: 'ago',
+      grain: 'giorni',
+      rel: 'fà',
       dttm: '',
-      type: 'free',
+      type: 'libera',
       free: '',
     };
     const words = value.split(' ');
@@ -73,7 +74,7 @@ export default class DateFilterControl extends React.Component {
     this.setState({ type: 'free', free: val }, this.close);
   }
   setDatetime(dttm) {
-    this.setState({ dttm: dttm.format().substring(0, 19) });
+    this.setState({ type:'fix', dttm: dttm.format().substring(0, 19) }, this.close);
   }
   close() {
     let val;
@@ -92,7 +93,7 @@ export default class DateFilterControl extends React.Component {
       <Popover id="filter-popover">
         <div style={{ width: '250px' }}>
           <PopoverSection
-            title="Fixed"
+            title="Seleziona la data"
             isSelected={this.state.type === 'fix'}
             onSelect={this.setType.bind(this, 'fix')}
           >
@@ -102,63 +103,13 @@ export default class DateFilterControl extends React.Component {
               </InputGroup.Addon>
               <Datetime
                 inputProps={{ className: 'form-control input-sm' }}
-                dateFormat="YYYY-MM-DD"
-                defaultValue={this.state.dttm}
+	    	dateFormat="DD-MM-YYYY" 
+                defaultValue={this.state.dttm.replace('T00:00:00','').split('-').reverse().join('-')}
                 onFocus={this.setType.bind(this, 'fix')}
                 onChange={this.setDatetime.bind(this)}
-                timeFormat="h:mm:ss"
+                timeFormat={false}
               />
             </InputGroup>
-          </PopoverSection>
-          <PopoverSection
-            title="Relative"
-            isSelected={this.state.type === 'rel'}
-            onSelect={this.setType.bind(this, 'rel')}
-          >
-            <div className="clearfix">
-              <div style={{ width: '50px' }} className="input-inline">
-                <FormControl
-                  onFocus={this.setType.bind(this, 'rel')}
-                  value={this.state.num}
-                  onChange={this.onNumberChange.bind(this)}
-                  bsSize="small"
-                />
-              </div>
-              <div style={{ width: '95px' }} className="input-inline">
-                <Select
-                  onFocus={this.setType.bind(this, 'rel')}
-                  value={this.state.grain}
-                  clearable={false}
-                  options={TIME_GRAIN_OPTIONS.map(s => ({ label: s, value: s }))}
-                  onChange={this.onControlChange.bind(this, 'grain')}
-                />
-              </div>
-              <div style={{ width: '95px' }} className="input-inline">
-                <Select
-                  value={this.state.rel}
-                  onFocus={this.setType.bind(this, 'rel')}
-                  clearable={false}
-                  options={RELATIVE_TIME_OPTIONS.map(s => ({ label: s, value: s }))}
-                  onChange={this.onControlChange.bind(this, 'rel')}
-                />
-              </div>
-            </div>
-          </PopoverSection>
-          <PopoverSection
-            title="Free form"
-            isSelected={this.state.type === 'free'}
-            onSelect={this.setType.bind(this, 'free')}
-            info={
-              'Superset supports smart date parsing. Strings like `last sunday` or ' +
-              '`last october` can be used.'
-            }
-          >
-            <FormControl
-              onFocus={this.setType.bind(this, 'free')}
-              value={this.state.free}
-              onChange={this.onFreeChange.bind(this)}
-              bsSize="small"
-            />
           </PopoverSection>
           <div className="clearfix">
             <Button
@@ -177,14 +128,14 @@ export default class DateFilterControl extends React.Component {
                 className="now"
                 onClick={this.setValueAndClose.bind(this, 'now')}
               >
-                now
+               	adesso 
               </Button>
               <Button
                 bsSize="small"
                 className="clear"
                 onClick={this.setValueAndClose.bind(this, '')}
               >
-                clear
+                da inizio 
               </Button>
             </ButtonGroup>
           </div>
@@ -194,6 +145,7 @@ export default class DateFilterControl extends React.Component {
   }
   render() {
     const value = this.props.value || '';
+	  console.log(value.replace('T00:00:00', '').split('-').reverse().join('-'));
     return (
       <div>
         <ControlHeader {...this.props} />
@@ -207,7 +159,7 @@ export default class DateFilterControl extends React.Component {
           overlay={this.renderPopover()}
         >
           <Label style={{ cursor: 'pointer' }}>
-            {value.replace('T00:00:00', '') || '∞'}
+            {value.replace('T00:00:00', '').split('-').reverse().join('-') || '∞'}
           </Label>
         </OverlayTrigger>
       </div>
